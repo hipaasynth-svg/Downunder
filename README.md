@@ -27,22 +27,25 @@ Run by `agents/run_nightly.py` (on a schedule via GitHub Actions):
    (`api.weather.gov`, free/no key). Cold/snow/storm means a quieter,
    regulars-only night; mild/clear means push for a crowd. The command board
    factors it in.
-3. **Nearby events** — concerts/games/fairs near Minot from the Ticketmaster
-   Discovery API (free key). A big event downtown fills the bars — the brief
-   flags what's on tonight so you can be the before/after stop. (PredictHQ is
+3. **Minot events (curated)** — reads our own [`/api/events`](https://github.com/hipaasynth-svg/drinkminot)
+   feed on DrinkMinot: the local "what's happening in Minot" list you curate in
+   admin (State Fair, MSU/Minotauros home games, downtown events). The most
+   reliable, most local source — flags what's on tonight.
+4. **Nearby events** — concerts/games/fairs near Minot from the Ticketmaster
+   Discovery API (free key), the national/ticketed complement. (PredictHQ is
    the paid upgrade for attendance-ranked, non-ticketed demand data.)
-4. **Nightly command board** — one highest-leverage move to get people in
+5. **Nightly command board** — one highest-leverage move to get people in
    tonight, what to ignore, the pulse in a line, and one tap nudge to run at the
    bar.
-5. **Tonight's angle + floor plan** — a promotable night (e-tabs for NDAD, the
+6. **Tonight's angle + floor plan** — a promotable night (e-tabs for NDAD, the
    punch card, happy hour, weekend kickoff), rotating, with a Friday-specific
    angle.
-6. **Content pack** — an Instagram caption + a TikTok script for tonight's
+7. **Content pack** — an Instagram caption + a TikTok script for tonight's
    angle, within the responsible-alcohol rules.
-7. **Cartoon strip** — a recurring cast of Down Under characters stars in a short
+8. **Cartoon strip** — a recurring cast of Down Under characters stars in a short
    cartoon about tonight's angle. Rendered as an image when a Gemini key is set,
    otherwise written as a text storyboard. See below.
-8. **Loyalty nudge + busy-ness log** — the honest way to earn more taps tonight,
+9. **Loyalty nudge + busy-ness log** — the honest way to earn more taps tonight,
    plus a prompt to rate tonight 1–5 at close (the measurement, since there are
    **no promo codes**).
 
@@ -97,6 +100,7 @@ the place and the night, with a light "drink responsibly / grab a ride" nudge.
 | `agents/drink.py` | Reads DrinkMinot `GET /api/state` → a `VenuePulse`. |
 | `agents/weather.py` | Reads tonight's forecast from `api.weather.gov` (free, no key). |
 | `agents/events.py` | Reads nearby events from the Ticketmaster Discovery API (free key). |
+| `agents/local_events.py` | Reads our curated Minot events from DrinkMinot's `/api/events`. |
 | `agents/logic.py` | Pure logic: pulse parsing, angle rotation, busy-ness rollup. No LLM. |
 | `agents/models.py` | Pydantic models (`VenuePulse`, `NightAngle`, `BusynessEntry`, …). |
 | `agents/content.py` | Deterministic content scaffolding (hashtags, schedule). |

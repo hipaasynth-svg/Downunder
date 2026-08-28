@@ -30,7 +30,7 @@ from functools import lru_cache
 
 from nooa import Agent
 
-from . import drink, events, logic, mail, notes, voice, weather
+from . import drink, events, local_events, logic, mail, notes, voice, weather
 from .config import Config, load_config
 from .models import (
     AgentState,
@@ -112,6 +112,7 @@ def _build_agent_class() -> type:
         # Runtime-only (re-fetched each run, not persisted): forecast + events.
         tonight_weather: TonightWeather | None
         nearby_events: list[LocalEvent]
+        minot_events: list[LocalEvent]
 
         focus_this_week: str = "turn tonight's foot traffic into DrinkMinot taps"
         weekly_goal: str = ""
@@ -146,6 +147,7 @@ def _build_agent_class() -> type:
             self.cast = []
             self.tonight_weather = None
             self.nearby_events = []
+            self.minot_events = []
             # Bar voice, loaded from VOICE_BIBLE.md (fallback baked in).
             self.voice_bible = voice.load_voice_bible()
             # Cody's between-run notes (BAR_NOTES.md); "" when the inbox is empty.
@@ -201,6 +203,17 @@ def _build_agent_class() -> type:
             """Deterministic readout of nearby events (no LLM) for the brief."""
             return events.render_events(
                 self.nearby_events if evs is None else evs, city_hint=self.bar_city.split(",")[0]
+            )
+
+        def refresh_minot_events(self) -> list[LocalEvent]:
+            """Read our curated Minot events feed (DrinkMinot /api/events)."""
+            self.minot_events = local_events.fetch_events(self.drink_url)
+            return self.minot_events
+
+        def minot_events_readout(self, evs: list[LocalEvent] | None = None) -> str:
+            """Deterministic readout of curated Minot events (no LLM)."""
+            return local_events.render_events(
+                self.minot_events if evs is None else evs
             )
 
         def tonights_angle(self) -> NightAngle | None:
@@ -259,10 +272,11 @@ def _build_agent_class() -> type:
             Max 8 lines. Ground it in ``self.venue_pulse``,
             ``self.tonight_weather`` (tonight's real forecast — cold/snow/storm
             means a quieter, regulars-only night; mild/clear means push for a
-            crowd), ``self.nearby_events`` (a big concert/game/fair nearby
-            tonight means crowds downtown — be the before/after stop; a quiet
-            week means you're the destination), and ``self.busyness_summary()``
-            — never invent numbers. Include:
+            crowd), ``self.minot_events`` (our curated Minot events) and
+            ``self.nearby_events`` (Ticketmaster) — a big concert/game/fair in
+            town tonight means crowds downtown, so be the before/after stop; a
+            quiet night means you're the destination — and
+            ``self.busyness_summary()`` — never invent numbers. Include:
             - One highest-leverage move to get people in TONIGHT (specific to the
               night, the weather, and to downtown Minot).
             - What to deliberately ignore.

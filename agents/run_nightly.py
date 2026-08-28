@@ -140,7 +140,16 @@ async def main() -> None:
         log.exception("weather read failed: %s", exc)
         print(f"[weather read skipped: {exc}]")
 
-    # ---- 1c. Nearby events (Ticketmaster Discovery — free key) ----
+    # ---- 1c. Curated Minot events (our own DrinkMinot /api/events) ----
+    print("\n=== Minot events (curated) ===")
+    try:
+        agent.refresh_minot_events()
+        print(agent.minot_events_readout())
+    except Exception as exc:  # noqa: BLE001
+        log.exception("minot events read failed: %s", exc)
+        print(f"[minot events read skipped: {exc}]")
+
+    # ---- 1d. Nearby events (Ticketmaster Discovery — free key) ----
     print("\n=== Nearby events ===")
     try:
         if agent.has_events:
