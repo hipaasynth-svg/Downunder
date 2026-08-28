@@ -61,7 +61,11 @@ the hard part, solved the field-standard way: each character gets **one locked
 
 - **Model:** Google **Gemini 2.5 Flash Image ("Nano Banana")** via
   `agents/gemini.py` — best-in-class at "draw *this* character in a new scene,"
-  ~$0.04/image, one API key, plain HTTP (runs from the Action).
+  ~$0.04/image, one API key, plain HTTP (runs from the Action). **Note:** the
+  image model needs **billing enabled** on the key's Google Cloud project — the
+  free AI Studio tier is for the web playground, not the API (an unbilled key
+  returns a `limit: 0` quota error). Without a working key it falls back to text
+  storyboards.
 - **Consistency:** canon references live in `cast/` and are persisted on the
   `downunder-state` branch, so the cast stays on-model across runs.
 - **Degrades gracefully:** with no `GEMINI_API_KEY`, the strip is still written
