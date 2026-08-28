@@ -63,6 +63,17 @@ class Config:
     github_repo: str = "drinkminot"
     default_branch: str = "main"
 
+    # Weather (US National Weather Service, api.weather.gov — free, no key).
+    # Coordinates for the bar's town so the nightly brief factors tonight's
+    # forecast in. Defaults to downtown Minot, ND.
+    weather_lat: float = 48.2325
+    weather_lon: float = -101.2963
+
+    # Local events (Ticketmaster Discovery API — free key). How far around the
+    # bar to look, and how many days ahead, when listing nearby events.
+    event_radius_miles: int = 30
+    event_days_ahead: int = 7
+
     # Local state persistence
     state_path: str = "downunder_state.json"
 
@@ -87,6 +98,10 @@ def load_config() -> Config:
         github_owner=_env("DOWNUNDER_GITHUB_OWNER", d.github_owner),
         github_repo=_env("DOWNUNDER_GITHUB_REPO", d.github_repo),
         default_branch=_env("DOWNUNDER_DEFAULT_BRANCH", d.default_branch),
+        weather_lat=float(_env("DOWNUNDER_WEATHER_LAT", str(d.weather_lat)) or d.weather_lat),
+        weather_lon=float(_env("DOWNUNDER_WEATHER_LON", str(d.weather_lon)) or d.weather_lon),
+        event_radius_miles=int(_env("DOWNUNDER_EVENT_RADIUS_MILES", str(d.event_radius_miles)) or d.event_radius_miles),
+        event_days_ahead=int(_env("DOWNUNDER_EVENT_DAYS_AHEAD", str(d.event_days_ahead)) or d.event_days_ahead),
         state_path=_env("DOWNUNDER_STATE_PATH", d.state_path),
         search_api_key=_env("DOWNUNDER_SEARCH_API_KEY", d.search_api_key),
     )

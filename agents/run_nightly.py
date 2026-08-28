@@ -131,6 +131,27 @@ async def main() -> None:
         log.exception("pulse read failed: %s", exc)
         print(f"[pulse read skipped: {exc}]")
 
+    # ---- 1b. Tonight's weather (api.weather.gov — free, no key) ----
+    print("\n=== Tonight's weather ===")
+    try:
+        w = agent.refresh_weather()
+        print(agent.weather_readout(w))
+    except Exception as exc:  # noqa: BLE001
+        log.exception("weather read failed: %s", exc)
+        print(f"[weather read skipped: {exc}]")
+
+    # ---- 1c. Nearby events (Ticketmaster Discovery — free key) ----
+    print("\n=== Nearby events ===")
+    try:
+        if agent.has_events:
+            agent.refresh_events()
+            print(agent.events_readout())
+        else:
+            print("[no TICKETMASTER_API_KEY — add a free key to list nearby events]")
+    except Exception as exc:  # noqa: BLE001
+        log.exception("events read failed: %s", exc)
+        print(f"[events read skipped: {exc}]")
+
     # ---- 2. Ruthless nightly command board ----
     await _step("Nightly command board", agent.nightly_command_board)
 
