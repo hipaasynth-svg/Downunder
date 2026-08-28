@@ -29,7 +29,7 @@
       "special": "1 dollar off"
     },
     "persistent": true,
-    "fetched_at": "2026-08-28T23:07:16+00:00",
+    "fetched_at": "2026-08-28T23:17:30+00:00",
     "ok": true,
     "error": ""
   },
@@ -88,7 +88,7 @@
       "look": "Human woman, late 50s, sturdy build, about 5'6\". Silver-gray hair in a short practical bob. Reading glasses pushed up on her forehead. Wears a forest-green Down Under polo, sleeves pushed up, a bar towel over one shoulder, dark jeans, and a small enamel pin of North Dakota on the collar. Warm crow's-feet, unimpressed half-smile.",
       "personality": "Dry as a January morning, secretly the softest heart in downtown Minot; has seen it all and poured most of it.",
       "catchphrase": "\"Seen worse. Poured it, too.\"",
-      "reference_path": ""
+      "reference_path": "cast/marge.png"
     },
     {
       "id": "stan",
@@ -97,7 +97,7 @@
       "look": "Human man, early 60s, tall and lanky with a slight stoop, about 6'1\". Bald on top with tufts of white hair over the ears, big bushy white mustache. Wears a red-and-black buffalo-plaid flannel over a plain gray henley, khaki work pants, and a well-worn green John Deere cap. Always has a coffee mug (bar's own) in hand and a lucky wooden nickel he flips.",
       "personality": "Cheerful, folksy optimist who plays a little for NDAD and swears the corner stool is lucky; roots for everybody.",
       "catchphrase": "\"Play a little, do a little good, eh?\"",
-      "reference_path": ""
+      "reference_path": "cast/stan.png"
     },
     {
       "id": "scoop",
@@ -106,7 +106,7 @@
       "look": "A rotund cartoon gopher mascot standing upright, about 3'6\", golden-brown fur with a cream belly, two big front teeth, round black nose, and bright friendly eyes. Wears a tiny forest-green Down Under vest with a yellow DrinkMinot tag pinned to it, and a little bow tie. Stubby arms, always mid-wave.",
       "personality": "Endlessly welcoming greeter who lives to show first-timers where the DrinkMinot tag is by the register.",
       "catchphrase": "\"Tap the tag, neighbor — I'll show ya!\"",
-      "reference_path": ""
+      "reference_path": "cast/scoop.png"
     }
   ],
   "focus_this_week": "turn tonight's foot traffic into DrinkMinot taps",
