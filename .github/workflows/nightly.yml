@@ -1,0 +1,125 @@
+name: Nightly Down Under
+
+# Runs the agent's nightly workflow on a schedule (and on demand), so it works
+# without any computer of your own. Results print to the run log and, when Zoho
+# Mail is configured, are emailed to you as a nightly brief before the shift.
+#
+# Keys are read from repository Secrets (Settings -> Secrets and variables ->
+# Actions), never committed:
+#   ANTHROPIC_API_KEY            - required for the AI parts (board, plan, content)
+#   ZOHO_MAIL_USER               - optional: your Zoho address, e.g. cody@drinkminot.com
+#   ZOHO_MAIL_PASSWORD           - optional: a Zoho APP password (not the login)
+#   DOWNUNDER_SEARCH_API_KEY   - optional: v2 nearby-venue scan (Google Places)
+# Missing optional keys just degrade gracefully — the run still works.
+
+on:
+  schedule:
+    # 21:00 UTC daily ≈ 4:00pm Central (3:00pm during standard time) — lands
+    # before the evening shift so the brief is actionable that night.
+    - cron: "0 21 * * *"
+  workflow_dispatch: {} # lets you run it on demand from the Actions tab
+
+# Don't pile up overlapping runs if one is slow.
+concurrency:
+  group: nightly-downunder
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    # Needed to push the agent's memory (state + playbook) to the downunder-state branch.
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # Restore the agent's memory (state + learned playbook) from the downunder-state
+      # branch, so each run continues where the last left off.
+      - name: Restore bar memory
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          repo_url="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          rm -rf /tmp/mem
+          if git clone --depth=1 --branch downunder-state "$repo_url" /tmp/mem 2>/dev/null; then
+            for f in downunder_state.json PLAYBOOK.md; do
+              if [ -f "/tmp/mem/$f" ]; then cp "/tmp/mem/$f" "./$f"; echo "restored $f"; fi
+            done
+          else
+            echo "no downunder-state branch yet — starting fresh"
+          fi
+
+      - name: Run the nightly workflow
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ZOHO_MAIL_USER: ${{ secrets.ZOHO_MAIL_USER }}
+          ZOHO_MAIL_PASSWORD: ${{ secrets.ZOHO_MAIL_PASSWORD }}
+          DOWNUNDER_SEARCH_API_KEY: ${{ secrets.DOWNUNDER_SEARCH_API_KEY }}
+        # Capture the brief so the next step can email it, while still showing
+        # it in the run log.
+        run: python -m agents.run_nightly | tee nightly_brief.txt
+
+      - name: Email the brief (when Zoho is configured)
+        if: always()
+        env:
+          ZOHO_MAIL_USER: ${{ secrets.ZOHO_MAIL_USER }}
+          ZOHO_MAIL_PASSWORD: ${{ secrets.ZOHO_MAIL_PASSWORD }}
+        run: |
+          python - <<'PY'
+          from agents import mail
+          import os, pathlib
+          # Emails YOU your own brief — this never sends anything to customers.
+          if mail.mail_configured():
+              body = pathlib.Path("nightly_brief.txt").read_text(encoding="utf-8")
+              mail.send_email(
+                  os.environ["ZOHO_MAIL_USER"],
+                  "Down Under — nightly brief",
+                  body or "(no output)",
+              )
+              print("Emailed the nightly brief.")
+          else:
+              print("Zoho not configured; skipping the email (brief is in the log above).")
+          PY
+
+      - name: Save the brief as a downloadable artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-brief
+          path: nightly_brief.txt
+          if-no-files-found: ignore
+
+      # Persist the agent's memory (state + updated playbook) back to the
+      # downunder-state branch so the next run remembers tonight.
+      - name: Save bar memory
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          repo_url="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          rm -rf /tmp/mem
+          if ! git clone --depth=1 --branch downunder-state "$repo_url" /tmp/mem 2>/dev/null; then
+            git clone --depth=1 "$repo_url" /tmp/mem
+            ( cd /tmp/mem && git checkout --orphan downunder-state && git rm -rf . >/dev/null 2>&1 || true )
+          fi
+          copied=0
+          for f in downunder_state.json PLAYBOOK.md; do
+            if [ -f "./$f" ]; then cp "./$f" "/tmp/mem/$f"; copied=1; fi
+          done
+          if [ "$copied" = "0" ]; then echo "nothing to save"; exit 0; fi
+          cd /tmp/mem
+          git config user.name "downunder-bot"
+          git config user.email "downunder-bot@users.noreply.github.com"
+          # -f because downunder_state.json is gitignored in the main repo.
+          git add -f downunder_state.json PLAYBOOK.md 2>/dev/null || true
+          if git diff --cached --quiet; then echo "no memory changes"; exit 0; fi
+          git commit -m "bar memory $(date -u +%FT%TZ)"
+          git push "$repo_url" HEAD:downunder-state
+          echo "bar memory saved"
