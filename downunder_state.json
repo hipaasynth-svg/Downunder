@@ -1,0 +1,114 @@
+{
+  "venue_pulse": {
+    "id": 63,
+    "name": "Down Under Bar",
+    "category": "Bars & Lounges",
+    "address": "Minot, ND",
+    "hours": "Mon-Thu 10am-10pm, Fri 10am-12am, Sat verify, Sun 11am-10pm",
+    "rating": 5.0,
+    "rating_count": 7,
+    "upvotes": 4,
+    "total_ratings": 7,
+    "claimed": true,
+    "paid": true,
+    "reward": "Free item on your 10th punch",
+    "coupon_valid_days": 14,
+    "happy_hour": {
+      "enabled": true,
+      "days": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": "17:00",
+      "end": "19:00",
+      "special": "1 dollar off"
+    },
+    "persistent": true,
+    "fetched_at": "2026-08-28T23:07:16+00:00",
+    "ok": true,
+    "error": ""
+  },
+  "angles": [
+    {
+      "id": "etabs-ndad",
+      "title": "E-tabs for a good cause",
+      "day": "",
+      "angle": "Play e-tabs downtown and support North Dakotans with disabilities.",
+      "details": "Charitable gaming is sponsored by NDAD — the money stays local. This is the honest, responsible draw: come hang out, play a little, do some good. Never 'play more' — just why it's worth a stop.",
+      "reward": "",
+      "cta": "Come by after work — first round of e-tabs is more fun with a table.",
+      "loyalty_url": "https://drinkminot.com/?r=63",
+      "for_promo": true
+    },
+    {
+      "id": "tap-and-earn",
+      "title": "Tap the tag, earn your reward",
+      "day": "",
+      "angle": "Regulars: tap the DrinkMinot tag on the bar and start a punch card.",
+      "details": "Every visit is a punch toward a free item — no app, no account, no tracking. Show a first-timer where the tag is on the bar.",
+      "reward": "Free item on a full punch card",
+      "cta": "Ask the bartender to point out the tag by the register.",
+      "loyalty_url": "https://drinkminot.com/?r=63",
+      "for_promo": true
+    },
+    {
+      "id": "happy-hour",
+      "title": "Downtown happy hour",
+      "day": "",
+      "angle": "The after-work stop before the night gets going.",
+      "details": "Lean, honest happy-hour draw — the special, the room, the fact that it's a walk from the rest of downtown Minot.",
+      "reward": "",
+      "cta": "Swing in after work; grab a stool at the bar.",
+      "loyalty_url": "https://drinkminot.com/?r=63",
+      "for_promo": true
+    },
+    {
+      "id": "weekend-downtown",
+      "title": "Start the weekend downtown",
+      "day": "Friday",
+      "angle": "Kick off the weekend at the Down Under before the crowd moves.",
+      "details": "Payday-Friday energy, downtown Minot. A good first stop — then the rest of Main Street is right there.",
+      "reward": "",
+      "cta": "Meet friends here first; tap the tag while you wait for your round.",
+      "loyalty_url": "https://drinkminot.com/?r=63",
+      "for_promo": true
+    }
+  ],
+  "busyness_log": [],
+  "cast": [
+    {
+      "id": "marge",
+      "name": "Marge Halvorson",
+      "role": "Deadpan veteran bartender",
+      "look": "Human woman, late 50s, sturdy build, about 5'6\". Silver-gray hair in a short practical bob. Reading glasses pushed up on her forehead. Wears a forest-green Down Under polo, sleeves pushed up, a bar towel over one shoulder, dark jeans, and a small enamel pin of North Dakota on the collar. Warm crow's-feet, unimpressed half-smile.",
+      "personality": "Dry as a January morning, secretly the softest heart in downtown Minot; has seen it all and poured most of it.",
+      "catchphrase": "\"Seen worse. Poured it, too.\"",
+      "reference_path": ""
+    },
+    {
+      "id": "stan",
+      "name": "Stan Bergquist",
+      "role": "Lucky-charm e-tab regular",
+      "look": "Human man, early 60s, tall and lanky with a slight stoop, about 6'1\". Bald on top with tufts of white hair over the ears, big bushy white mustache. Wears a red-and-black buffalo-plaid flannel over a plain gray henley, khaki work pants, and a well-worn green John Deere cap. Always has a coffee mug (bar's own) in hand and a lucky wooden nickel he flips.",
+      "personality": "Cheerful, folksy optimist who plays a little for NDAD and swears the corner stool is lucky; roots for everybody.",
+      "catchphrase": "\"Play a little, do a little good, eh?\"",
+      "reference_path": ""
+    },
+    {
+      "id": "scoop",
+      "name": "Scoop",
+      "role": "Friendly bar mascot",
+      "look": "A rotund cartoon gopher mascot standing upright, about 3'6\", golden-brown fur with a cream belly, two big front teeth, round black nose, and bright friendly eyes. Wears a tiny forest-green Down Under vest with a yellow DrinkMinot tag pinned to it, and a little bow tie. Stubby arms, always mid-wave.",
+      "personality": "Endlessly welcoming greeter who lives to show first-timers where the DrinkMinot tag is by the register.",
+      "catchphrase": "\"Tap the tag, neighbor — I'll show ya!\"",
+      "reference_path": ""
+    }
+  ],
+  "focus_this_week": "turn tonight's foot traffic into DrinkMinot taps",
+  "weekly_goal": ""
+}
