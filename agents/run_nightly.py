@@ -141,6 +141,19 @@ async def main() -> None:
         print(f"[weather read skipped: {exc}]")
 
     # ---- 1c. Curated Minot events (our own DrinkMinot /api/events) ----
+    # First auto-populate from PredictHQ (when configured), then read the feed
+    # back so tonight's brief reflects the fresh sync.
+    if agent.has_event_autosync:
+        try:
+            res = agent.sync_predicthq_events()
+            if res.get("ok"):
+                print(f"[auto-synced {res.get('synced', '?')} PredictHQ event(s) into /api/events]")
+            elif not res.get("skipped"):
+                print(f"[PredictHQ auto-sync failed: {res.get('error')}]")
+        except Exception as exc:  # noqa: BLE001
+            log.exception("predicthq sync failed: %s", exc)
+            print(f"[PredictHQ auto-sync skipped: {exc}]")
+
     print("\n=== Minot events (curated) ===")
     try:
         agent.refresh_minot_events()

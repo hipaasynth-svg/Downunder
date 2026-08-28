@@ -24,6 +24,62 @@ from .models import LocalEvent
 _USER_AGENT = "DownunderAgent/0.1 (+https://drinkminot.com)"
 
 
+def event_to_record(e: LocalEvent) -> dict[str, str]:
+    """Map a LocalEvent to a DrinkMinot /api/events record. Pure.
+
+    A stable id (``<source>_<source_id>``) keeps the nightly sync idempotent.
+    """
+    rec: dict[str, str] = {
+        "title": e.name,
+        "date": e.date,
+        "time": e.time,
+        "venue": e.venue,
+        "category": e.category,
+        "url": e.url,
+    }
+    if e.source and e.source_id:
+        rec["id"] = f"{e.source}_{e.source_id}"
+    return rec
+
+
+def sync_events(
+    drink_url: str,
+    admin_password: str,
+    source: str,
+    events: list[LocalEvent],
+    *,
+    timeout: float = 20.0,
+) -> dict[str, Any]:
+    """Push an auto-feed into DrinkMinot's ``/api/events`` via the ``sync`` action.
+
+    Replaces all events of ``source`` with ``events`` (idempotent, and it never
+    touches hand-curated 'manual' events). Never raises — returns a small result
+    dict with ``ok`` False on any failure so the nightly run degrades cleanly.
+    """
+    if not (drink_url and admin_password and source):
+        return {"ok": False, "error": "missing drink_url/admin_password/source"}
+    body = json.dumps(
+        {
+            "password": admin_password,
+            "action": "sync",
+            "source": source,
+            "events": [event_to_record(e) for e in events],
+        }
+    ).encode("utf-8")
+    url = f"{drink_url.rstrip('/')}/api/events"
+    req = Request(
+        url,
+        data=body,
+        method="POST",
+        headers={"Content-Type": "application/json", "User-Agent": _USER_AGENT},
+    )
+    try:
+        with urlopen(req, timeout=timeout) as resp:  # noqa: S310 - our own DrinkMinot endpoint
+            return json.loads(resp.read().decode("utf-8", errors="replace"))
+    except (HTTPError, URLError, ValueError, TimeoutError, OSError) as exc:
+        return {"ok": False, "error": f"{type(exc).__name__}: {exc}"}
+
+
 def parse_events(payload: dict[str, Any], *, today: str = "") -> list[LocalEvent]:
     """Parse a ``/api/events`` response into LocalEvent rows. Pure.
 

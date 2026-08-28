@@ -177,6 +177,10 @@ class LocalEvent(BaseModel):
     category: str = ""  # e.g. "Music", "Sports"
     url: str = ""
     is_tonight: bool = False
+    # Provenance, for auto-synced events (e.g. source="predicthq", the source's
+    # own id) so a nightly sync stays idempotent.
+    source: str = ""
+    source_id: str = ""
 
 
 # ---------- Cartoons ----------
