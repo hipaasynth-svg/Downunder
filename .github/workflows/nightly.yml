@@ -82,6 +82,11 @@ jobs:
         env:
           ZOHO_MAIL_USER: ${{ secrets.ZOHO_MAIL_USER }}
           ZOHO_MAIL_PASSWORD: ${{ secrets.ZOHO_MAIL_PASSWORD }}
+          # Optional: set these secrets if your Zoho account is on a non-US data
+          # center — e.g. smtp.zoho.eu / smtp.zoho.in / smtp.zoho.com.au. Empty =
+          # the smtp.zoho.com / 465 defaults.
+          ZOHO_SMTP_HOST: ${{ secrets.ZOHO_SMTP_HOST }}
+          ZOHO_SMTP_PORT: ${{ secrets.ZOHO_SMTP_PORT }}
         run: |
           python - <<'PY'
           from agents import mail
