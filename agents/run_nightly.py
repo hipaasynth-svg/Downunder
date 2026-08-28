@@ -45,6 +45,77 @@ async def _step(title: str, coro_factory: Callable[[], Awaitable[T]]) -> T | Non
         return None
 
 
+async def _cartoons(agent, angle, today: str) -> None:
+    """Cast + tonight's cartoon strip.
+
+    Invents the recurring cast once (and remembers it), locks a canon reference
+    image per character the first time (the consistency trick), writes tonight's
+    strip, and renders it as one multi-panel image — or, with no GEMINI_API_KEY,
+    prints the text storyboard so the feature still ships.
+    """
+    from pathlib import Path
+
+    from agents import cartoon, gemini
+    from agents.comic_agent import ComicAgent
+
+    print("\n=== CARTOON ===")
+    comic = ComicAgent()
+
+    # 1. Ensure a recurring cast exists (invent once; persisted in state).
+    if not agent.cast:
+        agent.cast = await comic.invent_cast() or []
+        if agent.cast:
+            print(f"[invented cast: {', '.join(c.name for c in agent.cast)}]")
+    if not agent.cast:
+        print("[no cast yet — skipping cartoon]")
+        return
+
+    have_images = gemini.configured()
+    if not have_images:
+        print("[no GEMINI_API_KEY — text storyboard only; add the key to render images]")
+
+    # 2. Lock a canon reference image per character, once (needs image gen).
+    if have_images:
+        cast_dir = Path("cast")
+        cast_dir.mkdir(exist_ok=True)
+        for ch in agent.cast:
+            if ch.reference_path and Path(ch.reference_path).exists():
+                continue
+            png = gemini.generate_image(comic.character_reference_prompt(ch))
+            if png:
+                ref = cast_dir / f"{ch.id}.png"
+                ref.write_bytes(png)
+                ch.reference_path = str(ref)
+                print(f"[locked canon art for {ch.name} -> {ref}]")
+            else:
+                print(f"[could not render canon art for {ch.name}]")
+
+    # 3. Write tonight's strip.
+    strip = await comic.write_strip(angle, agent.cast)
+    if strip is None:
+        print("[no strip written]")
+        return
+
+    # 4. Always show the storyboard (the human-readable record + no-key output).
+    print(cartoon.render_strip_markdown(strip, agent.cast))
+
+    # 5. Render one multi-panel image, feeding the cast's canon references.
+    if have_images:
+        refs: list[bytes] = []
+        for cid in strip.characters:
+            ch = cartoon.character_by_id(agent.cast, cid)
+            if ch and ch.reference_path and Path(ch.reference_path).exists():
+                refs.append(Path(ch.reference_path).read_bytes())
+        png = gemini.generate_image(comic.strip_image_prompt(strip, agent.cast), refs)
+        if png:
+            out = Path(f"strip_{today}.png")
+            out.write_bytes(png)
+            strip.image_path = str(out)
+            print(f"[rendered strip -> {out}]")
+        else:
+            print("[strip image render failed — storyboard above stands]")
+
+
 async def main() -> None:
     agent = DownunderAgent()
     agent.load()
@@ -93,6 +164,13 @@ async def main() -> None:
         except Exception as exc:  # noqa: BLE001 - content is a bonus, never fatal
             log.exception("content pack failed: %s", exc)
             print(f"[content pack skipped: {exc}]")
+
+        # ---- 4b. Tonight's cartoon strip (recurring cast) ----
+        try:
+            await _cartoons(agent, angle, today)
+        except Exception as exc:  # noqa: BLE001 - cartoons are a bonus, never fatal
+            log.exception("cartoon step failed: %s", exc)
+            print(f"[cartoon skipped: {exc}]")
 
     # ---- 5. Loyalty nudge + busy-ness log prompt ----
     await _step("DrinkMinot tap nudge for tonight", agent.loyalty_nudge)

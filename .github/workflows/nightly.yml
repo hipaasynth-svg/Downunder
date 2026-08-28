@@ -52,6 +52,8 @@ jobs:
             for f in downunder_state.json PLAYBOOK.md; do
               if [ -f "/tmp/mem/$f" ]; then cp "/tmp/mem/$f" "./$f"; echo "restored $f"; fi
             done
+            # Restore the locked canon cartoon-character art so the cast stays on-model.
+            if [ -d "/tmp/mem/cast" ]; then cp -r "/tmp/mem/cast" "./cast"; echo "restored cast/"; fi
           else
             echo "no downunder-state branch yet — starting fresh"
           fi
@@ -62,6 +64,8 @@ jobs:
           ZOHO_MAIL_USER: ${{ secrets.ZOHO_MAIL_USER }}
           ZOHO_MAIL_PASSWORD: ${{ secrets.ZOHO_MAIL_PASSWORD }}
           DOWNUNDER_SEARCH_API_KEY: ${{ secrets.DOWNUNDER_SEARCH_API_KEY }}
+          # Optional: turns the cartoons from text storyboards into rendered images.
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         # Capture the brief so the next step can email it, while still showing
         # it in the run log.
         run: python -m agents.run_nightly | tee nightly_brief.txt
@@ -74,16 +78,19 @@ jobs:
         run: |
           python - <<'PY'
           from agents import mail
-          import os, pathlib
+          import os, pathlib, glob
           # Emails YOU your own brief — this never sends anything to customers.
           if mail.mail_configured():
               body = pathlib.Path("nightly_brief.txt").read_text(encoding="utf-8")
+              # Attach tonight's rendered cartoon strip, if one was produced.
+              strips = sorted(glob.glob("strip_*.png"))
               mail.send_email(
                   os.environ["ZOHO_MAIL_USER"],
                   "Down Under — nightly brief",
                   body or "(no output)",
+                  attachments=strips,
               )
-              print("Emailed the nightly brief.")
+              print(f"Emailed the nightly brief ({len(strips)} strip image(s) attached).")
           else:
               print("Zoho not configured; skipping the email (brief is in the log above).")
           PY
@@ -93,7 +100,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: nightly-brief
-          path: nightly_brief.txt
+          path: |
+            nightly_brief.txt
+            strip_*.png
           if-no-files-found: ignore
 
       # Persist the agent's memory (state + updated playbook) back to the
@@ -113,12 +122,14 @@ jobs:
           for f in downunder_state.json PLAYBOOK.md; do
             if [ -f "./$f" ]; then cp "./$f" "/tmp/mem/$f"; copied=1; fi
           done
+          # Persist the locked canon cartoon-character art so the cast stays on-model.
+          if [ -d "./cast" ]; then rm -rf "/tmp/mem/cast"; cp -r "./cast" "/tmp/mem/cast"; copied=1; fi
           if [ "$copied" = "0" ]; then echo "nothing to save"; exit 0; fi
           cd /tmp/mem
           git config user.name "downunder-bot"
           git config user.email "downunder-bot@users.noreply.github.com"
           # -f because downunder_state.json is gitignored in the main repo.
-          git add -f downunder_state.json PLAYBOOK.md 2>/dev/null || true
+          git add -f downunder_state.json PLAYBOOK.md cast 2>/dev/null || true
           if git diff --cached --quiet; then echo "no memory changes"; exit 0; fi
           git commit -m "bar memory $(date -u +%FT%TZ)"
           git push "$repo_url" HEAD:downunder-state

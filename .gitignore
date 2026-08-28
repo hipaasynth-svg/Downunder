@@ -6,6 +6,10 @@ downunder_state.json
 daily_brief.txt
 nightly_brief.txt
 content_*.md
+# Cartoon output: rendered strips are ephemeral; the canon cast art lives on the
+# downunder-state branch, not in the main repo.
+strip_*.png
+cast/
 
 # Python
 __pycache__/

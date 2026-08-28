@@ -36,6 +36,7 @@ from .models import (
     AgentState,
     BusynessEntry,
     BusynessRollup,
+    Character,
     NightAngle,
     VenuePulse,
 )
@@ -105,6 +106,7 @@ def _build_agent_class() -> type:
         venue_pulse: VenuePulse | None
         angles: list[NightAngle]
         busyness_log: list[BusynessEntry]
+        cast: list[Character]
 
         focus_this_week: str = "turn tonight's foot traffic into DrinkMinot taps"
         weekly_goal: str = ""
@@ -128,6 +130,7 @@ def _build_agent_class() -> type:
             self.venue_pulse = None
             self.angles = logic.default_angles(self.tag_url())
             self.busyness_log = []
+            self.cast = []
             # Bar voice, loaded from VOICE_BIBLE.md (fallback baked in).
             self.voice_bible = voice.load_voice_bible()
             # Cody's between-run notes (BAR_NOTES.md); "" when the inbox is empty.
@@ -180,6 +183,7 @@ def _build_agent_class() -> type:
                 venue_pulse=self.venue_pulse,
                 angles=self.angles,
                 busyness_log=self.busyness_log,
+                cast=self.cast,
                 focus_this_week=self.focus_this_week,
                 weekly_goal=self.weekly_goal,
             )
@@ -189,6 +193,7 @@ def _build_agent_class() -> type:
             # Keep the seeded angles when a saved state carries none yet.
             self.angles = state.angles or logic.default_angles(self.tag_url())
             self.busyness_log = state.busyness_log
+            self.cast = state.cast
             self.focus_this_week = state.focus_this_week
             self.weekly_goal = state.weekly_goal
 

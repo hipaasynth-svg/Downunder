@@ -31,9 +31,31 @@ Run by `agents/run_nightly.py` (on a schedule via GitHub Actions):
    angle.
 4. **Content pack** — an Instagram caption + a TikTok script for tonight's
    angle, within the responsible-alcohol rules.
-5. **Loyalty nudge + busy-ness log** — the honest way to earn more taps tonight,
+5. **Cartoon strip** — a recurring cast of Down Under characters stars in a short
+   cartoon about tonight's angle. Rendered as an image when a Gemini key is set,
+   otherwise written as a text storyboard. See below.
+6. **Loyalty nudge + busy-ness log** — the honest way to earn more taps tonight,
    plus a prompt to rate tonight 1–5 at close (the measurement, since there are
    **no promo codes**).
+
+## Cartoons (recurring cast)
+
+The agent invents and **remembers** a small cast for the bar (e.g. a deadpan
+bartender, a lucky-charm e-tab regular, a mascot), then draws a short cartoon
+strip about each night. Keeping characters looking the same strip after strip is
+the hard part, solved the field-standard way: each character gets **one locked
+"canon" reference image**, generated once and fed into every future strip.
+
+- **Model:** Google **Gemini 2.5 Flash Image ("Nano Banana")** via
+  `agents/gemini.py` — best-in-class at "draw *this* character in a new scene,"
+  ~$0.04/image, one API key, plain HTTP (runs from the Action).
+- **Consistency:** canon references live in `cast/` and are persisted on the
+  `downunder-state` branch, so the cast stays on-model across runs.
+- **Degrades gracefully:** with no `GEMINI_API_KEY`, the strip is still written
+  as a text storyboard (panels + dialogue) — the feature ships without the key
+  and "turns on" when you add it.
+- **Cast + scripts** are written by `agents/comic_agent.py`; the deterministic
+  prompt-building and storyboard rendering live in `agents/cartoon.py`.
 
 ## The DrinkMinot tie-in
 
@@ -61,6 +83,9 @@ the place and the night, with a light "drink responsibly / grab a ride" nudge.
 |------|-----------|
 | `agents/downunder.py` | The agent — nightly command board, floor plan, loyalty nudge, reflect (LLM). |
 | `agents/content_agent.py` | The content producer — captions + short scripts (LLM). |
+| `agents/comic_agent.py` | The cartoonist — invents the recurring cast + writes strips (LLM). |
+| `agents/cartoon.py` | Pure cartoon logic: image prompts + text storyboard. No LLM. |
+| `agents/gemini.py` | Renders images via Gemini 2.5 Flash Image ("Nano Banana"). |
 | `agents/drink.py` | Reads DrinkMinot `GET /api/state` → a `VenuePulse`. |
 | `agents/logic.py` | Pure logic: pulse parsing, angle rotation, busy-ness rollup. No LLM. |
 | `agents/models.py` | Pydantic models (`VenuePulse`, `NightAngle`, `BusynessEntry`, …). |
@@ -93,9 +118,11 @@ pytest -q
 Add these repository **Secrets** (Settings → Secrets and variables → Actions):
 
 - `ANTHROPIC_API_KEY` — **required** for the AI parts.
+- `GEMINI_API_KEY` — *optional*: renders the nightly cartoon strip as an image
+  (Google AI Studio; ~$0.04/image). Without it, the strip is a text storyboard.
 - `ZOHO_MAIL_USER` / `ZOHO_MAIL_PASSWORD` — *optional*: emails you the nightly
-  brief (use a Zoho **app password**). Without them the brief is still in the
-  Actions log + a downloadable artifact.
+  brief (use a Zoho **app password**), with the rendered strip attached. Without
+  them the brief is still in the Actions log + a downloadable artifact.
 - `DOWNUNDER_SEARCH_API_KEY` — *optional*: v2 nearby-venue scan (Google
   Places). Not used by the nightly run yet.
 

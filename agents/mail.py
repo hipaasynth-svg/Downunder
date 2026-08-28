@@ -45,18 +45,43 @@ def mail_configured() -> bool:
     return bool(user and password)
 
 
-def build_message(sender: str, to: str, subject: str, body: str) -> EmailMessage:
-    """Build a plain-text email. Pure; no network."""
+def build_message(
+    sender: str,
+    to: str,
+    subject: str,
+    body: str,
+    attachments: list[str] | None = None,
+) -> EmailMessage:
+    """Build a plain-text email, optionally attaching files. Pure; no network.
+
+    Each existing path in ``attachments`` is attached (image/* by extension,
+    else application/octet-stream). Missing paths are skipped, so a nightly run
+    with no rendered strip still sends cleanly.
+    """
+    from pathlib import Path
+
     msg = EmailMessage()
     msg["From"] = sender
     msg["To"] = to
     msg["Subject"] = subject
     msg.set_content(body or "")
+    for path in attachments or []:
+        p = Path(path)
+        if not p.is_file():
+            continue
+        data = p.read_bytes()
+        subtype = p.suffix.lstrip(".").lower() or "octet-stream"
+        maintype = "image" if subtype in {"png", "jpg", "jpeg", "gif", "webp"} else "application"
+        if maintype == "application":
+            subtype = "octet-stream"
+        msg.add_attachment(data, maintype=maintype, subtype=subtype, filename=p.name)
     return msg
 
 
-def send_email(to: str, subject: str, body: str) -> None:
-    """Send one email via Zoho SMTP.
+def send_email(
+    to: str, subject: str, body: str, attachments: list[str] | None = None
+) -> None:
+    """Send one email via Zoho SMTP, optionally with file attachments.
 
     Raises ``RuntimeError`` when Zoho isn't configured (so nothing is silently
     dropped) and ``ValueError`` when the recipient is missing.
@@ -69,7 +94,7 @@ def send_email(to: str, subject: str, body: str) -> None:
         )
     if not (to or "").strip():
         raise ValueError("recipient (to) is required")
-    msg = build_message(user, to, subject, body)
+    msg = build_message(user, to, subject, body, attachments)
     with smtplib.SMTP_SSL(host, port) as smtp:
         smtp.login(user, password)
         smtp.send_message(msg)

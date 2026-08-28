@@ -130,11 +130,64 @@ class BusynessRollup(BaseModel):
     last_date: str = ""
 
 
+# ---------- Cartoons ----------
+class Character(BaseModel):
+    """One recurring cast member for the Down Under cartoons.
+
+    The agent invents the cast (``ComicAgent.invent_cast``) and remembers it in
+    state, so the same characters recur strip after strip. ``look`` is the
+    visual description that keeps a character on-model; ``reference_path`` points
+    at the character's locked "canon" image once generated — the field the image
+    model is fed on every future strip so the character stays consistent. Empty
+    ``reference_path`` means art hasn't been rendered yet (text-only mode).
+    """
+
+    model_config = ConfigDict(validate_assignment=True)
+
+    id: str
+    name: str
+    role: str = ""  # e.g. "bartender", "regular", "e-tab mascot"
+    look: str = ""  # visual description (species/build/clothes/colors) for consistency
+    personality: str = ""
+    catchphrase: str = ""
+    reference_path: str = ""  # path to the locked canon image, "" until rendered
+
+
+class ComicPanel(BaseModel):
+    """One panel of a cartoon strip."""
+
+    model_config = ConfigDict(validate_assignment=True)
+
+    scene: str = ""  # what's happening / the setting
+    speaker: str = ""  # character id or name delivering the line
+    line: str = ""  # the dialogue for the speech bubble
+
+
+class ComicStrip(BaseModel):
+    """A short cartoon strip about a Down Under night.
+
+    Written by the LLM from a ``NightAngle`` + the cast, then rendered as one
+    multi-panel image (see ``agents.cartoon`` / ``agents.gemini``). ``image_path``
+    is the rendered PNG, or "" when it was produced as a text storyboard only.
+    """
+
+    model_config = ConfigDict(validate_assignment=True)
+
+    id: str
+    title: str
+    angle_id: str = ""
+    characters: list[str] = Field(default_factory=list)  # character ids featured
+    panels: list[ComicPanel] = Field(default_factory=list)
+    caption: str = ""  # the social caption to post with the strip
+    image_path: str = ""  # rendered strip PNG, "" if text-only
+
+
 class AgentState(BaseModel):
     """Serializable snapshot of the agent's mutable business state."""
 
     venue_pulse: VenuePulse | None = None
     angles: list[NightAngle] = Field(default_factory=list)
     busyness_log: list[BusynessEntry] = Field(default_factory=list)
+    cast: list[Character] = Field(default_factory=list)
     focus_this_week: str = "turn tonight's foot traffic into DrinkMinot taps"
     weekly_goal: str = ""
