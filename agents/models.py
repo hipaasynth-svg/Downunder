@@ -130,6 +130,55 @@ class BusynessRollup(BaseModel):
     last_date: str = ""
 
 
+# ---------- Weather ----------
+class TonightWeather(BaseModel):
+    """Tonight's forecast for the bar's town, from the US National Weather
+    Service (``api.weather.gov`` — free, no key). Weather is one of the biggest
+    predictors of who goes out, so the nightly brief factors it in.
+
+    Built by ``agents.weather`` from the real NWS forecast periods; an
+    ``ok=False`` value (carrying ``error``) means the read failed and the brief
+    should carry on without it.
+    """
+
+    model_config = ConfigDict(validate_assignment=True)
+
+    city: str = ""  # e.g. "Minot, ND"
+    period: str = ""  # NWS period name, e.g. "Tonight"
+    temperature: int | None = None
+    temp_unit: str = "F"
+    short_forecast: str = ""  # e.g. "Partly Cloudy"
+    detailed_forecast: str = ""
+    precip_chance: int | None = None  # percent, when NWS provides it
+    wind: str = ""  # e.g. "NW 10 mph"
+    is_daytime: bool = False
+    rough: bool = False  # heuristic: snow/storm/ice/bitter cold — expect a quieter night
+    fetched_at: str = ""
+    ok: bool = False
+    error: str = ""
+
+
+# ---------- Local events ----------
+class LocalEvent(BaseModel):
+    """One nearby event from the Ticketmaster Discovery API.
+
+    A big concert, game, or fair downtown fills the bars around it — so the
+    nightly brief lists what's happening near Minot and flags anything tonight.
+    Built by ``agents.events``; purely informational.
+    """
+
+    model_config = ConfigDict(validate_assignment=True)
+
+    name: str
+    date: str = ""  # local date, YYYY-MM-DD
+    time: str = ""  # local start time, HH:MM when known
+    venue: str = ""
+    city: str = ""
+    category: str = ""  # e.g. "Music", "Sports"
+    url: str = ""
+    is_tonight: bool = False
+
+
 # ---------- Cartoons ----------
 class Character(BaseModel):
     """One recurring cast member for the Down Under cartoons.

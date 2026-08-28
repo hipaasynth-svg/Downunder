@@ -66,6 +66,8 @@ jobs:
           DOWNUNDER_SEARCH_API_KEY: ${{ secrets.DOWNUNDER_SEARCH_API_KEY }}
           # Optional: turns the cartoons from text storyboards into rendered images.
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          # Optional (free): lists nearby concerts/games/fairs that fill the bars.
+          TICKETMASTER_API_KEY: ${{ secrets.TICKETMASTER_API_KEY }}
         # Capture the brief so the next step can email it, while still showing
         # it in the run log.
         run: python -m agents.run_nightly | tee nightly_brief.txt

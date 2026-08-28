@@ -30,14 +30,16 @@ from functools import lru_cache
 
 from nooa import Agent
 
-from . import drink, logic, mail, notes, voice
+from . import drink, events, logic, mail, notes, voice, weather
 from .config import Config, load_config
 from .models import (
     AgentState,
     BusynessEntry,
     BusynessRollup,
     Character,
+    LocalEvent,
     NightAngle,
+    TonightWeather,
     VenuePulse,
 )
 from .state import load_state, save_state
@@ -107,6 +109,9 @@ def _build_agent_class() -> type:
         angles: list[NightAngle]
         busyness_log: list[BusynessEntry]
         cast: list[Character]
+        # Runtime-only (re-fetched each run, not persisted): forecast + events.
+        tonight_weather: TonightWeather | None
+        nearby_events: list[LocalEvent]
 
         focus_this_week: str = "turn tonight's foot traffic into DrinkMinot taps"
         weekly_goal: str = ""
@@ -116,6 +121,14 @@ def _build_agent_class() -> type:
         bar_city: str = _CONFIG.bar_city
         drink_url: str = _CONFIG.drink_url
         venue_id: int = _CONFIG.venue_id
+
+        # Weather (api.weather.gov — free, no key) for the bar's town.
+        weather_lat: float = _CONFIG.weather_lat
+        weather_lon: float = _CONFIG.weather_lon
+
+        # Nearby events (Ticketmaster Discovery — free key) search window.
+        event_radius_miles: int = _CONFIG.event_radius_miles
+        event_days_ahead: int = _CONFIG.event_days_ahead
 
         # Repo ownership (site changes ship only via PR).
         github_owner: str = _CONFIG.github_owner
@@ -131,6 +144,8 @@ def _build_agent_class() -> type:
             self.angles = logic.default_angles(self.tag_url())
             self.busyness_log = []
             self.cast = []
+            self.tonight_weather = None
+            self.nearby_events = []
             # Bar voice, loaded from VOICE_BIBLE.md (fallback baked in).
             self.voice_bible = voice.load_voice_bible()
             # Cody's between-run notes (BAR_NOTES.md); "" when the inbox is empty.
@@ -153,6 +168,40 @@ def _build_agent_class() -> type:
             if p is None:
                 return "No DrinkMinot pulse read yet."
             return logic.render_pulse(p, drink_url=self.drink_url)
+
+        def refresh_weather(self) -> TonightWeather:
+            """Read tonight's forecast for the bar's town and remember it."""
+            w = weather.fetch_tonight(self.weather_lat, self.weather_lon)
+            self.tonight_weather = w
+            return w
+
+        def weather_readout(self, w: TonightWeather | None = None) -> str:
+            """Deterministic one-line weather readout (no LLM) for the brief."""
+            tw = w or self.tonight_weather
+            if tw is None:
+                return "No weather read yet."
+            return weather.render_weather(tw)
+
+        @property
+        def has_events(self) -> bool:
+            """True when a Ticketmaster key is configured (real events vs none)."""
+            return events.configured()
+
+        def refresh_events(self) -> list[LocalEvent]:
+            """Read nearby events (Ticketmaster) and remember them."""
+            self.nearby_events = events.fetch_events(
+                self.weather_lat,
+                self.weather_lon,
+                radius_miles=self.event_radius_miles,
+                days_ahead=self.event_days_ahead,
+            )
+            return self.nearby_events
+
+        def events_readout(self, evs: list[LocalEvent] | None = None) -> str:
+            """Deterministic readout of nearby events (no LLM) for the brief."""
+            return events.render_events(
+                self.nearby_events if evs is None else evs, city_hint=self.bar_city.split(",")[0]
+            )
 
         def tonights_angle(self) -> NightAngle | None:
             """Tonight's promotable angle — weekday-specific if set, else rotating."""
@@ -207,10 +256,15 @@ def _build_agent_class() -> type:
         async def nightly_command_board(self) -> str:
             """
             Produce a short, ruthless nightly command board for the bar.
-            Max 8 lines. Ground it in ``self.venue_pulse`` and
-            ``self.busyness_summary()`` — never invent numbers. Include:
+            Max 8 lines. Ground it in ``self.venue_pulse``,
+            ``self.tonight_weather`` (tonight's real forecast — cold/snow/storm
+            means a quieter, regulars-only night; mild/clear means push for a
+            crowd), ``self.nearby_events`` (a big concert/game/fair nearby
+            tonight means crowds downtown — be the before/after stop; a quiet
+            week means you're the destination), and ``self.busyness_summary()``
+            — never invent numbers. Include:
             - One highest-leverage move to get people in TONIGHT (specific to the
-              night and to downtown Minot).
+              night, the weather, and to downtown Minot).
             - What to deliberately ignore.
             - The DrinkMinot loyalty pulse in one honest line (rating, taps, and
               — if persistence is off — that taps reset until Redis is attached).
