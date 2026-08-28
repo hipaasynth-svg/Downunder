@@ -12,3 +12,7 @@ did. Edit or prune freely.
 ## 2026-08-28
 - Still zero nights logged — the 1-5-at-close log never got started; nothing about angle/weekday conversion is readable yet, so making Cody log tonight's score is the single highest-leverage habit to lock in.
 - Taps flat at 7 (persistent) for a second run — the register-tag nudge isn't moving the number; try a specific "walk three named regulars to the tag" ask and check if taps tick up next run.
+
+## 2026-08-28
+- Third run in a row with taps flat at 7 (persistent) and zero nights logged — the generic tag nudge isn't moving taps; tonight I ran the specific "walk three named regulars to the tag" ask, so next run check whether taps ticked to 8-10 before repeating it.
+- Nothing is readable on angle conversion until the 1-5-at-close log exists — stop planning new angles and make logging tonight's score the single non-negotiable ask to Cody.
