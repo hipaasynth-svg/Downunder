@@ -123,6 +123,17 @@ def generate_image(
     try:
         with urlopen(req, timeout=timeout) as resp:  # noqa: S310 - trusted Google endpoint
             payload = json.loads(resp.read().decode("utf-8", errors="replace"))
-    except (HTTPError, URLError, ValueError, TimeoutError, OSError):
+    except HTTPError as exc:
+        # Surface the reason into the run log (never raises) — the most common
+        # one is a quota/billing wall on the image model: HTTP 429 or a 400 with
+        # "limit: 0", which means billing must be enabled on the key's project.
+        try:
+            detail = exc.read().decode("utf-8", errors="replace")[:400]
+        except Exception:  # noqa: BLE001
+            detail = ""
+        print(f"[gemini] image request failed: HTTP {exc.code} {detail}")
+        return None
+    except (URLError, ValueError, TimeoutError, OSError) as exc:
+        print(f"[gemini] image request failed: {type(exc).__name__}: {exc}")
         return None
     return first_image_bytes(payload)
