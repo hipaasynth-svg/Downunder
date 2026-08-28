@@ -28,9 +28,11 @@ Run by `agents/run_nightly.py` (on a schedule via GitHub Actions):
    regulars-only night; mild/clear means push for a crowd. The command board
    factors it in.
 3. **Minot events (curated)** — reads our own [`/api/events`](https://github.com/hipaasynth-svg/drinkminot)
-   feed on DrinkMinot: the local "what's happening in Minot" list you curate in
-   admin (State Fair, MSU/Minotauros home games, downtown events). The most
-   reliable, most local source — flags what's on tonight.
+   feed on DrinkMinot: the local "what's happening in Minot" list. It
+   **auto-populates from PredictHQ** each night (concerts, sports, festivals,
+   community events + predicted attendance) when a token is set, and you can
+   hand-curate one-offs in admin — the two never clobber each other. The most
+   reliable, most local source; flags what's on tonight.
 4. **Nearby events** — concerts/games/fairs near Minot from the Ticketmaster
    Discovery API (free key), the national/ticketed complement. (PredictHQ is
    the paid upgrade for attendance-ranked, non-ticketed demand data.)
@@ -100,7 +102,8 @@ the place and the night, with a light "drink responsibly / grab a ride" nudge.
 | `agents/drink.py` | Reads DrinkMinot `GET /api/state` → a `VenuePulse`. |
 | `agents/weather.py` | Reads tonight's forecast from `api.weather.gov` (free, no key). |
 | `agents/events.py` | Reads nearby events from the Ticketmaster Discovery API (free key). |
-| `agents/local_events.py` | Reads our curated Minot events from DrinkMinot's `/api/events`. |
+| `agents/local_events.py` | Reads (and syncs) our curated Minot events via DrinkMinot's `/api/events`. |
+| `agents/predicthq.py` | Pulls Minot events from PredictHQ to auto-populate the curated feed. |
 | `agents/logic.py` | Pure logic: pulse parsing, angle rotation, busy-ness rollup. No LLM. |
 | `agents/models.py` | Pydantic models (`VenuePulse`, `NightAngle`, `BusynessEntry`, …). |
 | `agents/content.py` | Deterministic content scaffolding (hashtags, schedule). |

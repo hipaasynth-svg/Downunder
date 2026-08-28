@@ -30,7 +30,17 @@ from functools import lru_cache
 
 from nooa import Agent
 
-from . import drink, events, local_events, logic, mail, notes, voice, weather
+from . import (
+    drink,
+    events,
+    local_events,
+    logic,
+    mail,
+    notes,
+    predicthq,
+    voice,
+    weather,
+)
 from .config import Config, load_config
 from .models import (
     AgentState,
@@ -204,6 +214,34 @@ def _build_agent_class() -> type:
             return events.render_events(
                 self.nearby_events if evs is None else evs, city_hint=self.bar_city.split(",")[0]
             )
+
+        @property
+        def has_event_autosync(self) -> bool:
+            """True when PredictHQ auto-sync can run (token + admin password set)."""
+            import os
+
+            return bool(predicthq.configured() and os.environ.get("DRINK_ADMIN_PASSWORD", "").strip())
+
+        def sync_predicthq_events(self) -> dict:
+            """Auto-populate the curated feed: pull PredictHQ events near the bar
+            and upsert them into DrinkMinot /api/events under source 'predicthq'.
+
+            Idempotent and source-scoped (never touches hand-curated events).
+            No-ops (returns skipped) unless both PREDICTHQ_TOKEN and
+            DRINK_ADMIN_PASSWORD are set.
+            """
+            import os
+
+            admin = os.environ.get("DRINK_ADMIN_PASSWORD", "").strip()
+            if not (predicthq.configured() and admin):
+                return {"ok": False, "skipped": True}
+            evs = predicthq.fetch_events(
+                self.weather_lat,
+                self.weather_lon,
+                radius_miles=self.event_radius_miles,
+                days_ahead=max(self.event_days_ahead, 14),
+            )
+            return local_events.sync_events(self.drink_url, admin, predicthq.SOURCE, evs)
 
         def refresh_minot_events(self) -> list[LocalEvent]:
             """Read our curated Minot events feed (DrinkMinot /api/events)."""
