@@ -16,3 +16,8 @@ did. Edit or prune freely.
 ## 2026-08-28
 - Third run in a row with taps flat at 7 (persistent) and zero nights logged — the generic tag nudge isn't moving taps; tonight I ran the specific "walk three named regulars to the tag" ask, so next run check whether taps ticked to 8-10 before repeating it.
 - Nothing is readable on angle conversion until the 1-5-at-close log exists — stop planning new angles and make logging tonight's score the single non-negotiable ask to Cody.
+
+## 2026-08-29
+- Fourth run: taps still flat at 7 (persistent), log still empty — the "walk three regulars to the tag" ask hasn't been confirmed as done; next run, before repeating it, check whether Cody actually ran it and whether taps moved to 8+.
+- Nothing about angle/weekday conversion is readable until a single 1-5 gets logged — keep the log as the one non-negotiable ask and stop layering new tap tactics on top of an unverified base.
+- Saturday, mild weather, no competing events = clean "we're the destination" night; if taps/log finally move after a night like this, that's the setup worth repeating.
