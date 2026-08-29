@@ -21,3 +21,8 @@ did. Edit or prune freely.
 - Fourth run: taps still flat at 7 (persistent), log still empty — the "walk three regulars to the tag" ask hasn't been confirmed as done; next run, before repeating it, check whether Cody actually ran it and whether taps moved to 8+.
 - Nothing about angle/weekday conversion is readable until a single 1-5 gets logged — keep the log as the one non-negotiable ask and stop layering new tap tactics on top of an unverified base.
 - Saturday, mild weather, no competing events = clean "we're the destination" night; if taps/log finally move after a night like this, that's the setup worth repeating.
+
+## 2026-08-29
+- Fifth run: taps flat at 7 (persistent) and busy-ness log still empty across every prior run — the "walk three regulars to the tag" ask has never been confirmed done, so the tag tactic is unproven, not failed; stop generating new tap angles and get one confirmation that Cody actually ran it and one 1-5 logged before anything else.
+- Saturday, rough weather (storms, 61°F), no events in town = clean "destination / warm room" night — if taps move to 8+ or a score finally lands after a night like this, that's the first readable data point; note it as the baseline setup.
+- The blocker isn't the message, it's execution on Cody's side — next run lead with the single question "did tonight get logged and did you walk anyone to the tag?" instead of a fresh board, since nothing is measurable until one of those is a yes.
