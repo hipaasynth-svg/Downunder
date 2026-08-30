@@ -26,3 +26,7 @@ did. Edit or prune freely.
 - Fifth run: taps flat at 7 (persistent) and busy-ness log still empty across every prior run — the "walk three regulars to the tag" ask has never been confirmed done, so the tag tactic is unproven, not failed; stop generating new tap angles and get one confirmation that Cody actually ran it and one 1-5 logged before anything else.
 - Saturday, rough weather (storms, 61°F), no events in town = clean "destination / warm room" night — if taps move to 8+ or a score finally lands after a night like this, that's the first readable data point; note it as the baseline setup.
 - The blocker isn't the message, it's execution on Cody's side — next run lead with the single question "did tonight get logged and did you walk anyone to the tag?" instead of a fresh board, since nothing is measurable until one of those is a yes.
+
+## 2026-08-30
+- Sixth run: pulse unchanged (5.0★, 7 taps, persistent) and log still empty — the tag-walk ask has still never been confirmed done, so there is genuinely nothing new to learn until Cody replies; next run, ask ONLY "did tonight get logged? did you walk anyone to the tag?" and do not generate a board until one is a yes.
+- Rainy/stormy Sunday, 52°F, no events = textbook warm-room regulars night; happy-hour "dry stool downtown" was the right lead — if a 1-5 ever lands on a night like this, that's the baseline to compare crowd-push nights against.
