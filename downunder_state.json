@@ -6,9 +6,9 @@
     "address": "Minot, ND",
     "hours": "Mon-Thu 10am-10pm, Fri 10am-12am, Sat verify, Sun 11am-10pm",
     "rating": 5.0,
-    "rating_count": 7,
-    "upvotes": 4,
-    "total_ratings": 7,
+    "rating_count": 8,
+    "upvotes": 5,
+    "total_ratings": 8,
     "claimed": true,
     "paid": true,
     "reward": "Free item on your 10th punch",
@@ -29,7 +29,7 @@
       "special": "1 dollar off"
     },
     "persistent": true,
-    "fetched_at": "2026-09-25T23:47:01+00:00",
+    "fetched_at": "2026-09-26T23:21:55+00:00",
     "ok": true,
     "error": ""
   },
