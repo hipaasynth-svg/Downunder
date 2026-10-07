@@ -3,8 +3,8 @@
     "id": 63,
     "name": "Down Under Bar",
     "category": "Bars & Lounges",
-    "address": "Minot, ND",
-    "hours": "Mon-Thu 10am-10pm, Fri 10am-12am, Sat verify, Sun 11am-10pm",
+    "address": "23 Main St S Unit 1B, Minot, ND 58701",
+    "hours": "Mon-Thu 10am-10pm, Fri-Sat 10am-12am, Sun 11am-10pm",
     "rating": 5.0,
     "rating_count": 8,
     "upvotes": 5,
@@ -29,7 +29,7 @@
       "special": "1 dollar off"
     },
     "persistent": true,
-    "fetched_at": "2026-10-06T01:39:16+00:00",
+    "fetched_at": "2026-10-07T00:20:33+00:00",
     "ok": true,
     "error": ""
   },
