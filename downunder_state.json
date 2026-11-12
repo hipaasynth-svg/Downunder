@@ -1,37 +1,23 @@
 {
   "venue_pulse": {
     "id": 63,
-    "name": "Down Under Bar",
-    "category": "Bars & Lounges",
-    "address": "23 Main St S Unit 1B, Minot, ND 58701",
-    "hours": "Mon-Thu 10am-10pm, Fri-Sat 10am-12am, Sun 11am-10pm",
-    "rating": 5.0,
-    "rating_count": 8,
-    "upvotes": 5,
-    "total_ratings": 8,
-    "claimed": true,
-    "paid": true,
-    "reward": "Free item on your 10th punch",
-    "coupon_valid_days": 14,
-    "happy_hour": {
-      "enabled": true,
-      "days": [
-        0,
-        1,
-        2,
-        3,
-        4,
-        5,
-        6
-      ],
-      "start": "17:00",
-      "end": "19:00",
-      "special": "1 dollar off"
-    },
-    "persistent": true,
-    "fetched_at": "2026-11-11T00:59:41+00:00",
-    "ok": true,
-    "error": ""
+    "name": "",
+    "category": "",
+    "address": "",
+    "hours": "",
+    "rating": 0.0,
+    "rating_count": 0,
+    "upvotes": 0,
+    "total_ratings": 0,
+    "claimed": false,
+    "paid": false,
+    "reward": "",
+    "coupon_valid_days": 0,
+    "happy_hour": {},
+    "persistent": false,
+    "fetched_at": "",
+    "ok": false,
+    "error": "HTTPError: HTTP Error 402: Payment Required"
   },
   "angles": [
     {
